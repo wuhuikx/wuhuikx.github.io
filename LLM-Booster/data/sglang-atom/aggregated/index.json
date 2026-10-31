@@ -1,0 +1,15 @@
+{
+  "lastUpdate": 1779782934824,
+  "source": "",
+  "format": "runs-v1-chunked",
+  "chunkSize": 80,
+  "totalRuns": 14,
+  "totalPoints": 77,
+  "chunks": [
+    {
+      "file": "aggregated/runs-0001.json",
+      "n_runs": 14,
+      "n_points": 77
+    }
+  ]
+}

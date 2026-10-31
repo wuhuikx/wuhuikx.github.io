@@ -1,0 +1,180 @@
+{
+  "lastUpdate": 1793426168513,
+  "source": "",
+  "format": "runs-v1-chunked",
+  "chunkSize": 80,
+  "totalRuns": 2651,
+  "totalPoints": 16755,
+  "chunks": [
+    {
+      "file": "aggregated/runs-0001.json",
+      "n_runs": 80,
+      "n_points": 595
+    },
+    {
+      "file": "aggregated/runs-0002.json",
+      "n_runs": 80,
+      "n_points": 599
+    },
+    {
+      "file": "aggregated/runs-0003.json",
+      "n_runs": 80,
+      "n_points": 530
+    },
+    {
+      "file": "aggregated/runs-0004.json",
+      "n_runs": 80,
+      "n_points": 586
+    },
+    {
+      "file": "aggregated/runs-0005.json",
+      "n_runs": 80,
+      "n_points": 573
+    },
+    {
+      "file": "aggregated/runs-0006.json",
+      "n_runs": 80,
+      "n_points": 369
+    },
+    {
+      "file": "aggregated/runs-0007.json",
+      "n_runs": 80,
+      "n_points": 531
+    },
+    {
+      "file": "aggregated/runs-0008.json",
+      "n_runs": 80,
+      "n_points": 569
+    },
+    {
+      "file": "aggregated/runs-0009.json",
+      "n_runs": 80,
+      "n_points": 430
+    },
+    {
+      "file": "aggregated/runs-0010.json",
+      "n_runs": 80,
+      "n_points": 417
+    },
+    {
+      "file": "aggregated/runs-0011.json",
+      "n_runs": 80,
+      "n_points": 492
+    },
+    {
+      "file": "aggregated/runs-0012.json",
+      "n_runs": 80,
+      "n_points": 584
+    },
+    {
+      "file": "aggregated/runs-0013.json",
+      "n_runs": 80,
+      "n_points": 567
+    },
+    {
+      "file": "aggregated/runs-0014.json",
+      "n_runs": 80,
+      "n_points": 505
+    },
+    {
+      "file": "aggregated/runs-0015.json",
+      "n_runs": 80,
+      "n_points": 515
+    },
+    {
+      "file": "aggregated/runs-0016.json",
+      "n_runs": 80,
+      "n_points": 543
+    },
+    {
+      "file": "aggregated/runs-0017.json",
+      "n_runs": 80,
+      "n_points": 476
+    },
+    {
+      "file": "aggregated/runs-0018.json",
+      "n_runs": 80,
+      "n_points": 597
+    },
+    {
+      "file": "aggregated/runs-0019.json",
+      "n_runs": 80,
+      "n_points": 463
+    },
+    {
+      "file": "aggregated/runs-0020.json",
+      "n_runs": 80,
+      "n_points": 530
+    },
+    {
+      "file": "aggregated/runs-0021.json",
+      "n_runs": 80,
+      "n_points": 514
+    },
+    {
+      "file": "aggregated/runs-0022.json",
+      "n_runs": 80,
+      "n_points": 481
+    },
+    {
+      "file": "aggregated/runs-0023.json",
+      "n_runs": 80,
+      "n_points": 528
+    },
+    {
+      "file": "aggregated/runs-0024.json",
+      "n_runs": 80,
+      "n_points": 428
+    },
+    {
+      "file": "aggregated/runs-0025.json",
+      "n_runs": 80,
+      "n_points": 499
+    },
+    {
+      "file": "aggregated/runs-0026.json",
+      "n_runs": 80,
+      "n_points": 454
+    },
+    {
+      "file": "aggregated/runs-0027.json",
+      "n_runs": 80,
+      "n_points": 445
+    },
+    {
+      "file": "aggregated/runs-0028.json",
+      "n_runs": 80,
+      "n_points": 510
+    },
+    {
+      "file": "aggregated/runs-0029.json",
+      "n_runs": 80,
+      "n_points": 527
+    },
+    {
+      "file": "aggregated/runs-0030.json",
+      "n_runs": 80,
+      "n_points": 418
+    },
+    {
+      "file": "aggregated/runs-0031.json",
+      "n_runs": 80,
+      "n_points": 508
+    },
+    {
+      "file": "aggregated/runs-0032.json",
+      "n_runs": 80,
+      "n_points": 501
+    },
+    {
+      "file": "aggregated/runs-0033.json",
+      "n_runs": 80,
+      "n_points": 409
+    },
+    {
+      "file": "aggregated/runs-0034.json",
+      "n_runs": 11,
+      "n_points": 62
+    }
+  ]
+}

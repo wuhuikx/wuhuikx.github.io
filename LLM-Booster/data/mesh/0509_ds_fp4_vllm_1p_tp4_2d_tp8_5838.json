@@ -1,0 +1,42 @@
+{
+  "run_id": "0509_ds_fp4_vllm_1p_tp4_2d_tp8_5838",
+  "date": "2026-05-09",
+  "timestamp": 1778326260000,
+  "model": "DeepSeek-R1-0528-MXFP4-MTP-MoEFP4",
+  "backend": "vllm",
+  "config_label": "ds_fp4_vllm_1p_tp4_2d_tp8_5838",
+  "precision": "fp4",
+  "source": "SLURM",
+  "client_bench": "inferencemax",
+  "points": [
+    {
+      "isl": 8192,
+      "osl": 1024,
+      "concurrency": 64,
+      "ratio": 0.8,
+      "ttft_ms": 14011.8231,
+      "ttft_p99": 35928.0913,
+      "tpot_ms": 11.0676,
+      "tpot_p99": 12.9047,
+      "median_tpot_ms": 11.4383,
+      "itl_ms": 11.0677,
+      "e2el_ms": 24202.0192,
+      "output_tput": 2253.0413,
+      "total_tput": 20308.414,
+      "req_tput": 2.4443,
+      "completed": 640,
+      "duration": 261.8359,
+      "num_prompts": 640,
+      "num_prefill_gpu": 4,
+      "num_decode_gpu": 16,
+      "total_gpu": 20,
+      "prefill_tp": 4,
+      "decode_tp": 8,
+      "precision": "fp4",
+      "interactivity": 87.4256,
+      "tput_per_gpu": 1015.4207,
+      "output_tput_per_gpu": 112.6521
+    }
+  ],
+  "gsm8k": 0.935557240333586
+}
