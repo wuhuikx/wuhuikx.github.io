@@ -2,6 +2,31 @@
 
 Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测与仿真的 Prometheus 对比图，任务跟踪见 [#592](https://github.com/wuhuikx/LLM-Booster/issues/592)。
 
+## 多配置看板（按模型 / 部署方式 / 并行配置 / 并发切换）
+
+**交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html>**
+
+直接打开即可，不需要登录。
+
+- **页面结构：** 顶部依次选模型、部署方式（PD 分离 / aggregated）、并行配置、并发。最上面的总览给出所有配置 × 并发的误差热力图，选一个指标（逐请求的 TTFT / TPOT / 吞吐，或任一 Prometheus 面板）和一个仿真 law 即可横向比较；下面是选中配置的误差矩阵、逐请求表和面板曲线（实线实测，虚线仿真）。误差 = 仿真 / 实测 − 1。
+- **当前数据：** DeepSeek-V4.1-Flash 1P1D（P TP2 EP2，D TP4），Mooncake Store 开，pit2-p03-g27，c = 1 / 8 / 32 / 64 / 128，每档 1800 s agentic 实跑；仿真为每档自身记录拟合的定律（in-sample），sim_canon 为标准发送顺序，sim_1..3 为不同发送顺序种子，c=128 另有未清洗 KV 链路的 rawlink_canon。
+
+  | 指标（sim_canon） | c=1 | c=8 | c=32 | c=64 | c=128 |
+  |---|--:|--:|--:|--:|--:|
+  | TTFT P50 | −7.0% | −1.7% | −2.8% | −3.7% | −6.2% |
+  | TPOT P50 | 0.0% | −0.5% | −0.7% | −1.0% | −1.1% |
+  | 吞吐/卡 | +0.6% | +0.1% | +0.6% | 0.0% | +0.5% |
+
+  PD 部署的仿真报告不含 mesh 入口的 Overall TTFT 面板，所以总览里该面板指标为空；端到端 TTFT 请看逐请求的 TTFT 指标。
+- **生成方式：** jgong5/ATOM `scripts/compass/compare_dashboard.py` 的多配置版本，见 [jgong5/ATOM#3939](https://github.com/jgong5/ATOM/pull/3939)（尚未合入；合入前请用该 PR 的分支 `compass/dashboard-multi-config` 生成，`dsv41/dev` 上的旧版不支持 `--scan` 和多配置）。新结果按目录约定放好即可自动出现在页面上，不用手写清单：
+
+  ```
+  ROOT/<模型>/<pd|aggregated>/<并行配置>/c<并发>/
+      real/  prom/report-data.json  sims/<label>/prometheus.json  [one_real.txt]  [cell.json]
+  ```
+
+  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。
+
 ## Cell A：单机 DPA4-EP4
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html>**
