@@ -6,6 +6,12 @@ latency-throughput Pareto curves.
 
 Live: https://wuhuikx.github.io/LLM-Booster/
 
+## Compass 仿真与实测对比
+
+- **Cell A（单机 DPA4-EP4，DeepSeek-V4.1-Flash，c=1…256）**：实测与 Compass 仿真的 Prometheus 对比图
+  → <https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html>
+  （说明、静态截图与数据来源见 [compass/README.md](compass/README.md)）
+
 ## Layout
 
 ```
