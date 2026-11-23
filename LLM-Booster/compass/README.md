@@ -6,7 +6,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html>**
 
-需要先在 [dashboard](https://wuhuikx.github.io/LLM-Booster/) 登录一次（口令和 dashboard 首页相同）。登录后会回到首页，再打开上面的链接即可。
+直接打开即可，不需要登录。
 
 - **对象：** DeepSeek-V4.1-Flash，MI355X 单机 4 卡，DPA4-EP4（4 个 DP attention rank + 专家并行），MTP 投机解码（5 个 draft，强制接受长度 3.51），bf16 KV，decode CUDA graph 档位 1–64，max-num-seqs 64。
 - **实测：** 每个并发（c = 1 / 8 / 32 / 64 / 128 / 256）一次预热后的 30 min agentic 多轮真跑。
