@@ -8,10 +8,10 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
 直接打开即可，不需要登录。
 
-- **页面结构：** 顶部依次选模型、部署方式（PD 分离 / aggregated）、并行配置、并发。最上面的总览给出所有配置 × 并发的误差热力图，选一个指标（逐请求的 TTFT / TPOT / 吞吐，或任一 Prometheus 面板）和一个仿真 law 即可横向比较；下面是选中配置的误差矩阵、逐请求表和面板曲线（实线实测，虚线仿真）。误差 = 仿真 / 实测 − 1。
-- **当前数据：** DeepSeek-V4.1-Flash 1P1D（P TP2 EP2，D TP4），Mooncake Store 开，pit2-p03-g27，c = 1 / 8 / 32 / 64 / 128，每档 1800 s agentic 实跑；仿真为每档自身记录拟合的定律（in-sample），sim_canon 为标准发送顺序，sim_1..3 为不同发送顺序种子，c=128 另有未清洗 KV 链路的 rawlink_canon。
+- **页面结构：** 顶部依次选模型、部署方式（PD 分离 / aggregated）、并行配置、并发。最上面的总览给出所有配置 × 并发的误差热力图，选一个指标（逐请求的 TTFT / TPOT / 吞吐，或任一 Prometheus 面板）即可横向比较；下面是选中配置的误差矩阵、逐请求表和面板曲线（实线实测，虚线仿真）。误差 = 仿真 / 实测 − 1。
+- **当前数据：** DeepSeek-V4.1-Flash 1P1D（P TP2 EP2，D TP4），Mooncake Store 开，pit2-p03-g27，c = 1 / 8 / 32 / 64 / 128，每档 1800 s agentic 实跑；仿真为每档自身记录拟合的定律（in-sample）。每档只展示一条仿真，记作 sim：标准发送顺序（不设发送顺序种子）的那次运行。
 
-  | 指标（sim_canon） | c=1 | c=8 | c=32 | c=64 | c=128 |
+  | 指标（sim） | c=1 | c=8 | c=32 | c=64 | c=128 |
   |---|--:|--:|--:|--:|--:|
   | TTFT P50 | −7.0% | −1.7% | −2.8% | −3.7% | −6.2% |
   | TPOT P50 | 0.0% | −0.5% | −0.7% | −1.0% | −1.1% |
@@ -25,7 +25,9 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
       real/  prom/report-data.json  sims/<label>/prometheus.json  [one_real.txt]  [cell.json]
   ```
 
-  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。
+  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。每个 cell 只放一个仿真目录 `sims/sim/`（标准发送顺序）。
+
+  当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --title 'Compass · DeepSeek-V4.1-Flash 1P1D 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`e20e4a06b`）。
 
 ## Cell A：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
 
