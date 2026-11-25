@@ -21,9 +21,9 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
   **4P4D，即 8P16D（P TP2 DPA2 EP2，D TP4 DPA4 NoEP）**：按 ROCm/ATOM recipe `5effb67d` 的 C1228 配置（P、D 各 4 个实例，D 的 MoE 不开 EP），代码为该 recipe 合入 `dsv41/dev`。P 在 pit2-p03-g48，D 在 g53 和 g52；不经 ingress；Mooncake Store 挂满 1574 GiB，压测前清空。c = 1228，900 s agentic 实跑，所以这一格按 0–900 s 计分（`cell.json` 的 `window_s`）。
 
-  | 指标（sim） | TTFT P50 | TTFT P90 | TTFT P99 | TPOT P50 | TPOT P90 | E2E P50 | 吞吐/卡 |
-  |---|--:|--:|--:|--:|--:|--:|--:|
-  | c=1228 | −10.2% | +1.7% | −24.6% | −6.1% | −2.9% | −4.6% | +2.4% |
+  | 指标（sim） | TTFT P50 | TTFT P90 | TPOT P50 | TPOT P90 | E2E P50 | 吞吐/卡 |
+  |---|--:|--:|--:|--:|--:|--:|
+  | c=1228 | −10.2% | +1.7% | −6.1% | −2.9% | −4.6% | +2.4% |
 
   这一格偏差最大的面板是 D 接收 KV 的等待（P90 −72%）、Decode TTFT P90（−38%）和 D 排队时间 P90（−33%）：P→D 的 KV 传输尾延迟被低估。分析和用 1P1D 定律外推的对照见 [#745](https://github.com/wuhuikx/LLM-Booster/issues/745#issuecomment-7140337948)。
 
@@ -37,7 +37,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
   `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。每个 cell 只放一个仿真目录 `sims/sim/`（标准发送顺序）。计分时长和页面窗口（默认 1800 s）不同的 cell，在 `cell.json` 里写 `window_s`。
 
-  当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`ce356be4e`）。
+  当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`27eade350`）。
 
 ## Cell A：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
 
