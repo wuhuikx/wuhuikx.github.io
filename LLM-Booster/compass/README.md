@@ -8,14 +8,24 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
 直接打开即可，不需要登录。
 
-- **页面结构：** 顶部依次选模型、部署方式（PD 分离 / aggregated）、并行配置、并发。最上面的总览给出所有配置 × 并发的误差热力图，选一个指标（逐请求的 TTFT / TPOT / 吞吐，或任一 Prometheus 面板）即可横向比较；下面是选中配置的误差矩阵、逐请求表和面板曲线（实线实测，虚线仿真）。误差 = 仿真 / 实测 − 1。
-- **当前数据：** DeepSeek-V4.1-Flash 1P1D（P TP2 EP2，D TP4），Mooncake Store 开，pit2-p03-g27，c = 1 / 8 / 32 / 64 / 128，每档 1800 s agentic 实跑；仿真为每档自身记录拟合的定律（in-sample）。每档只展示一条仿真，记作 sim：标准发送顺序（不设发送顺序种子）的那次运行。
+- **页面结构：** 顶部依次选模型（下拉）、部署方式（PD 分离 / aggregated）、并行配置（下拉）、并发。最上面的总览给出所有配置 × 并发的误差热力图，选一个指标（逐请求的 TTFT / TPOT / 吞吐，或任一 Prometheus 面板）即可横向比较；下面是选中配置的误差矩阵、逐请求表和面板曲线（实线实测，虚线仿真）。误差 = 仿真 / 实测 − 1。
+- **当前数据：** 两个并行配置，都是 DeepSeek-V4.1-Flash PD 分离、Mooncake Store 开。每档只展示一条仿真，记作 sim：标准发送顺序（不设发送顺序种子）的那次运行；仿真都用该档自身记录拟合的定律（in-sample）。
+
+  **1P1D（P TP2 EP2，D TP4）**：pit2-p03-g27，c = 1 / 8 / 32 / 64 / 128，每档 1800 s agentic 实跑。
 
   | 指标（sim） | c=1 | c=8 | c=32 | c=64 | c=128 |
   |---|--:|--:|--:|--:|--:|
   | TTFT P50 | −7.0% | −1.7% | −2.8% | −3.7% | −6.2% |
   | TPOT P50 | 0.0% | −0.5% | −0.7% | −1.0% | −1.1% |
   | 吞吐/卡 | +0.6% | +0.1% | +0.6% | 0.0% | +0.5% |
+
+  **4P4D，即 8P16D（P TP2 DPA2 EP2，D TP4 DPA4 NoEP）**：按 ROCm/ATOM recipe `5effb67d` 的 C1228 配置（P、D 各 4 个实例，D 的 MoE 不开 EP），代码为该 recipe 合入 `dsv41/dev`。P 在 pit2-p03-g48，D 在 g53 和 g52；不经 ingress；Mooncake Store 挂满 1574 GiB，压测前清空。c = 1228，900 s agentic 实跑，所以这一格按 0–900 s 计分（`cell.json` 的 `window_s`）。
+
+  | 指标（sim） | TTFT P50 | TTFT P90 | TTFT P99 | TPOT P50 | TPOT P90 | E2E P50 | 吞吐/卡 |
+  |---|--:|--:|--:|--:|--:|--:|--:|
+  | c=1228 | −10.2% | +1.7% | −24.6% | −6.1% | −2.9% | −4.6% | +2.4% |
+
+  这一格偏差最大的面板是 D 接收 KV 的等待（P90 −72%）、Decode TTFT P90（−38%）和 D 排队时间 P90（−33%）：P→D 的 KV 传输尾延迟被低估。分析和用 1P1D 定律外推的对照见 [#745](https://github.com/wuhuikx/LLM-Booster/issues/745#issuecomment-7140337948)。
 
   PD 部署的仿真报告不含 mesh 入口的 Overall TTFT 面板，所以总览里该面板指标为空；端到端 TTFT 请看逐请求的 TTFT 指标。
 - **生成方式：** jgong5/ATOM `scripts/compass/compare_dashboard.py` 的多配置版本，见 [jgong5/ATOM#3939](https://github.com/jgong5/ATOM/pull/3939)（尚未合入；合入前请用该 PR 的分支 `compass/dashboard-multi-config` 生成，`dsv41/dev` 上的旧版不支持 `--scan` 和多配置）。新结果按目录约定放好即可自动出现在页面上，不用手写清单：
@@ -25,9 +35,9 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
       real/  prom/report-data.json  sims/<label>/prometheus.json  [one_real.txt]  [cell.json]
   ```
 
-  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。每个 cell 只放一个仿真目录 `sims/sim/`（标准发送顺序）。
+  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。每个 cell 只放一个仿真目录 `sims/sim/`（标准发送顺序）。计分时长和页面窗口（默认 1800 s）不同的 cell，在 `cell.json` 里写 `window_s`。
 
-  当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --title 'Compass · DeepSeek-V4.1-Flash 1P1D 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`9335f9b78`）。
+  当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`55ccb738f`）。
 
 ## Cell A：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
 
