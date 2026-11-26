@@ -20,7 +20,8 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
   | 模型 | Cell · 配置（直达链接） | 定律与仿真 | 并发 | 详细页 |
   |---|---|---|---|---|
   | DeepSeek-V4.1-Flash | [Cell A v1 · TP4 DPA4 EP4，bf16 KV](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v1+%C2%B7+TP4+DPA4+EP4%EF%BC%8Cbf16+KV+%C2%B7+law+hkb&c=128) | `hkb`，3 个 seed | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html) |
-  | DeepSeek-V4.1-Flash | [Cell A v2 · D 配置：TP4 DPA4，MoE TP4](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+D+%E9%85%8D%E7%BD%AE%EF%BC%9ATP4+DPA4%EF%BC%8CMoE+TP4+%C2%B7+law+hcT_hkbc&c=128) | `hcT_hkbc`，3 个 seed | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) |
+  | DeepSeek-V4.1-Flash | [Cell A v2 · D 配置：TP4 DPA4，MoE TP4](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+D+%E9%85%8D%E7%BD%AE%EF%BC%9ATP4+DPA4%EF%BC%8CMoE+TP4+%C2%B7+law+hcT6PF_hkbc&c=128) | `hcT6PF_hkbc`，3 个 seed；只用有效实测，c=512 对 real2，c=8 / 64 待重录 | 1 / 32 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) |
+  | DeepSeek-V4.1-Flash | [Cell A v2 · D 配置：TP4 DPA4，MoE TP4（c512 对 real3）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+D+%E9%85%8D%E7%BD%AE%EF%BC%9ATP4+DPA4%EF%BC%8CMoE+TP4%EF%BC%88c512+%E5%AF%B9+real3%EF%BC%89%C2%B7+law+hcT6PF_hkbc&c=512) | `hcT6PF_hkbc`，3 个 seed；c=512 对 real3 | 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) |
   | DeepSeek-V4.1-Flash | [Cell A v2 · P 配置：TP2 DPA2 EP2 MoRI](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+P+%E9%85%8D%E7%BD%AE%EF%BC%9ATP2+DPA2+EP2+MoRI+%C2%B7+law+de2PbPMf1_hkb&c=128) | `de2PbPMf1_hkb`，3 个 seed（c=1 为 1 个，c=256 / 512 为 6 个） | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) |
   | DeepSeek-V4.1-Flash | [Cell B · 1P1D（P TP2 DPA2 EP2，D TP4 DPA4）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=pd&par=Cell+B+%C2%B7+1P1D%EF%BC%88P+TP2+DPA2+EP2%EF%BC%8CD+TP4+DPA4%EF%BC%89%C2%B7+law+v2gA_h0&c=240) | `v2gA_h0`，标准顺序 + seed 1 | 16 / 64 / 240 / 256 / 307 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) |
   | DeepSeek-V4.1-Flash | [Cell B · 2P1D（2 × P TP2 DPA2 EP2，D TP4 DPA4）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=pd&par=Cell+B+%C2%B7+2P1D%EF%BC%882+%C3%97+P+TP2+DPA2+EP2%EF%BC%8CD+TP4+DPA4%EF%BC%89%C2%B7+law+v2gA_h0&c=128) | `v2gA_h0`，标准顺序 + seed 1 | 128 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) |
@@ -132,9 +133,17 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 直接打开即可，不需要登录。
 
 - **对象：** DeepSeek-V4.1-Flash，MI355X 单机 4 卡，一个聚合实例（prefill 与 decode 在同一实例）：TP4 + DPA4，MoE 走 TP4、不开 EP；fp8 KV，block 16；MTP 5 个 draft（接受长度强制为 3.51）；max-num-seqs 64。配置取自 ROCm/ATOM recipe `DeepSeek-V4.1-6P16D-C1228-Share-Cache.md`（main `5effb67d4`）的 D 实例。
-- **实测：** pit2 上 c = 1 / 8 / 32 / 64 / 128 / 256 / 512 各一次预热后的 1800 s agentic 真跑，0 次 JIT 编译；c=256、c=512 在隔离整机上重录。c=512 的真跑有一段约 90 s 的设备卡顿，只评卡顿前的窗口。
-- **仿真：** 最终定律 `hcT_hkbc`（第二版）：原校准加三段补充校准合并拟合，加 `tail_peers` 列（`COMPASS_FIT_TAIL_PEERS=1`，jgong5/ATOM `752/dev` f161ed24e）。每格叠 7 条仿真曲线：`hcT_hkbc` 3 个发送顺序 seed，第一版 `cA2U4c_hkbc` 3 个 seed，基线 `cA2D_hkb` 1 个 seed。
-- **误差（仿真 / 实测 − 1，c=1…256 三个 seed 的平均绝对误差）：** TTFT P90 4.5%，TPOT P90 6.1%，每卡吞吐 1.6%。decode 批大小、运行数、KV 占用和缓存复用在每个并发下都在 ±5% 以内；c=8…64 的 TTFT 和排队时间仍偏低 5–15%。逐点数字和运行时间对比见 [#766](https://github.com/wuhuikx/LLM-Booster/issues/766)。
+- **实测（只用有效记录）：** pit2 上每个并发 1800 s agentic 真跑。按 owner 的规则，被卡顿影响的实测判为无效，不参与比较：c=1 / 32 / 128 / 256 用 real1；c=512 的 real1 有 30 次 KFD 换出卡顿，改用 real2 和 real3（页面里分成两组，「c512 对 real3」单列）；c=8、c=64 的 real1 无效，重录已排队，暂不显示。
+- **仿真：** 最终定律 `hcT6PF_hkbc`（owner 11-26 约 15:00 UTC 决定，按 [#739](https://github.com/wuhuikx/LLM-Booster/issues/739) 只用校准数据做留一段交叉验证选出）：在 `hcT_hkbc` 的基础上加 PM 规则（拟合 `COMPASS_FIT_PREFILL_PHASE_MAX=1`，仿真 `COMPASS_PREFILL_PHASE_MAX=1`），用原校准、三段补充校准和 addPM、addHit 两段补充校准合并拟合。发送顺序 seed 0–2；本页另画上一版 `hcT_hkbc` 作对照（统一看板里只放 `hcT6PF_hkbc`）。
+- **误差（仿真 / 实测 − 1，三个 seed 的平均；c=512 对 real2、real3 的平均）：**
+
+  | 指标 | c=1 | c=32 | c=128 | c=256 | c=512 |
+  |---|--:|--:|--:|--:|--:|
+  | TTFT P90 | −1.6% | +0.4% | +6.1% | +3.9% | −4.0% |
+  | TPOT P90 | −1.1% | −7.0% | −3.8% | −8.0% | −5.7% |
+  | 每卡吞吐 | +0.8% | +0.9% | +0.7% | +2.1% | +2.8% |
+
+  未关：c=128 的 TTFT P90（+6.1%，3 个 seed）正在补到 6 个 seed；c=32 / 256 / 512 的 TPOT P90 偏低在查。c=8、c=64 重录后补入。逐点数字见 [#766](https://github.com/wuhuikx/LLM-Booster/issues/766)。
 
 ## Cell A v2：单机 DEPA2（DeepSeek-V4.1-Flash，对应 Cell B 的 P）
 
