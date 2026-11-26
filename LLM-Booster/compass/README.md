@@ -4,20 +4,41 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
 ## 页面一览
 
-| 页面 | 模型 | Cell · 切分方式 | 定律 | 状态 |
-|---|---|---|---|---|
-| [cellA_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v1 · 单机 DPA4 + EP4（4 卡） | PG2 | 已完成 |
-| [cellA_v2_dpa4_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v2 · 单机 DPA4 + MoE TP4，不开 EP（4 卡，即 Cell B 的 D） | `hcT_hkbc` | 最终定律 |
-| [cellA_v2_depa2_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v2 · 单机 DEPA2 = DPA2 + EP2，MoRI（2 卡，即 Cell B 的 P） | `de2PbPMf1_hkb` | 最终定律 |
-| [cellB_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) | DeepSeek-V4.1-Flash | Cell B · 1P1D（P TP2 DPA2 + EP2，D TP4 DPA4）与 2P1D | `v2gA_h0` | 最终定律 |
-| [m31_cellA_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) | MiniMax-M3.1-Flash | Cell A · 单机 TP4（06d AgentX recipe 的 D 配置） | `v2MFS_hkbx` | c=8…128 定稿；c=1 / 256 / 512 暂缓 |
-| [dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html) | DeepSeek-V4.1-Flash | 多配置：1P1D 扫描与 4P4D（8P16D）C1228 | 各档自身记录 | 早期结果 |
+- **统一看板（所有配置，可切换）：<https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html>**，见下一节。
+- 详细页（每个配置单独一页，含旧定律的对照曲线）：[DSv4.1 Cell A v1](https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html) · [DSv4.1 Cell A v2 DPA4](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) · [DSv4.1 Cell A v2 DEPA2](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) · [DSv4.1 Cell B 1P1D / 2P1D](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) · [M3.1 Cell A](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html)
+- 旧的多配置页（样本内定律）：[dashboard_v0_insample.html](https://wuhuikx.github.io/LLM-Booster/compass/dashboard_v0_insample.html)，见「旧多配置看板」一节。
 
-MiniMax-M3.1-Flash 的 Cell B（单机 1P1D）还没有目标点，Cell C（两机 1P2D，只用来检验多 P 多 D 的精度）还没有有效的真跑，所以都没有看板。Kimi-K3.1、GLM-5.3-Flash、qwen3.8 flash 也还没有。
-
-## 多配置看板（按模型 / 部署方式 / 并行配置 / 并发切换）
+## 统一看板（所有配置，按模型 / 部署方式 / 配置 / 并发切换）
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html>**
+
+直接打开即可，不需要登录。
+
+- **页面结构：** 顶部依次选模型、部署方式（PD 分离 / aggregated 即单机 PD 混合）、配置、并发。最上面的总览给出所有配置 × 并发的误差热力图；下面是选中配置的误差矩阵、逐请求表和面板曲线（实线实测，虚线仿真）。误差 = 仿真 / 实测 − 1。地址栏 `#` 后面记录当前的选择，复制链接即可直接打开同一个配置和并发。
+- **收录的配置：** 每个配置只放最终定律的仿真；旧定律的对照曲线在各自的详细页里。
+
+  | 模型 | Cell · 配置（直达链接） | 定律与仿真 | 并发 | 详细页 |
+  |---|---|---|---|---|
+  | DeepSeek-V4.1-Flash | [Cell A v1 · TP4 DPA4 EP4，bf16 KV](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v1+%C2%B7+TP4+DPA4+EP4%EF%BC%8Cbf16+KV+%C2%B7+law+hkb&c=128) | `hkb`，3 个 seed | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html) |
+  | DeepSeek-V4.1-Flash | [Cell A v2 · D 配置：TP4 DPA4，MoE TP4](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+D+%E9%85%8D%E7%BD%AE%EF%BC%9ATP4+DPA4%EF%BC%8CMoE+TP4+%C2%B7+law+hcT_hkbc&c=128) | `hcT_hkbc`，3 个 seed | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) |
+  | DeepSeek-V4.1-Flash | [Cell A v2 · P 配置：TP2 DPA2 EP2 MoRI](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+P+%E9%85%8D%E7%BD%AE%EF%BC%9ATP2+DPA2+EP2+MoRI+%C2%B7+law+de2PbPMf1_hkb&c=128) | `de2PbPMf1_hkb`，3 个 seed（c=1 为 1 个，c=256 / 512 为 6 个） | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) |
+  | DeepSeek-V4.1-Flash | [Cell B · 1P1D（P TP2 DPA2 EP2，D TP4 DPA4）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=pd&par=Cell+B+%C2%B7+1P1D%EF%BC%88P+TP2+DPA2+EP2%EF%BC%8CD+TP4+DPA4%EF%BC%89%C2%B7+law+v2gA_h0&c=240) | `v2gA_h0`，标准顺序 + seed 1 | 16 / 64 / 240 / 256 / 307 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) |
+  | DeepSeek-V4.1-Flash | [Cell B · 2P1D（2 × P TP2 DPA2 EP2，D TP4 DPA4）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=pd&par=Cell+B+%C2%B7+2P1D%EF%BC%882+%C3%97+P+TP2+DPA2+EP2%EF%BC%8CD+TP4+DPA4%EF%BC%89%C2%B7+law+v2gA_h0&c=128) | `v2gA_h0`，标准顺序 + seed 1 | 128 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) |
+  | MiniMax-M3.1-Flash | [Cell A · TP4 NVFP4 AK-MoE（06d AgentX 的 D 配置）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=MiniMax-M3.1-Flash&dep=aggregated&par=Cell+A+%C2%B7+TP4+NVFP4+AK-MoE%EF%BC%8806d+AgentX+%E7%9A%84+D+%E9%85%8D%E7%BD%AE%EF%BC%89%C2%B7+law+v2MFS_hkbx&c=128) | `v2MFS_hkbx`，3 个 seed | 8 / 32 / 64 / 128 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) |
+
+- **没有收录：**
+  - Cell C（4P4D C1228）：旧结果的仿真用的是这次实测自己拟合的定律（样本内）。Cell C 只用来检验多 P 多 D 的精度，真实数据不参与拟合，所以没有放进来；旧页面保留在下一节。
+  - MiniMax-M3.1-Flash 的 Cell B（单机 1P1D）和 Cell C（两机 1P2D）还没有目标点；Kimi-K3.1、GLM-5.3-Flash、qwen3.8 flash 也还没有。进度见 [#791](https://github.com/wuhuikx/LLM-Booster/issues/791)。
+- **生成方式：** g08 上建一个只放符号链接的扫描目录 `/var/tmp/perzhang_compass/dash_unified/`（布局同下），再用 jgong5/ATOM `752/dev` 的 `scripts/compass/compare_dashboard.py --scan` 生成本页；脚本为 g08 上的 `~perzhang/pz_snap/i791_task_1126/unified_dash.sh`，在 `perzhang_cellb2_cpu` 容器里运行（需要 Python 3.11+，且要同时挂载 Cell A 和 Cell B 的数据目录）。新配置按目录约定放进扫描目录、重跑脚本，就会出现在页面上：
+
+  ```
+  ROOT/<模型>/<pd|aggregated>/<配置>/c<并发>/
+      real/  prom/report-data.json  sims/<label>/prometheus.json  [one_real.txt]  [cell.json]
+  ```
+
+## 旧多配置看板（样本内定律，11-25 之前）
+
+**交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/dashboard_v0_insample.html>**
 
 直接打开即可，不需要登录。
 
@@ -48,9 +69,9 @@ MiniMax-M3.1-Flash 的 Cell B（单机 1P1D）还没有目标点，Cell C（两�
       real/  prom/report-data.json  sims/<label>/prometheus.json  [one_real.txt]  [cell.json]
   ```
 
-  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`，再把生成的页面替换本目录下的 `dashboard.html`。每个 cell 只放一个仿真目录 `sims/sim/`（标准发送顺序）。计分时长和页面窗口（默认 1800 s）不同的 cell，在 `cell.json` 里写 `window_s`。
+  `python3 scripts/compass/compare_dashboard.py --scan ROOT --out dashboard.html`（这一页 11-26 起改名为 `dashboard_v0_insample.html`，`dashboard.html` 现在是上面的统一看板）。每个 cell 只放一个仿真目录 `sims/sim/`（标准发送顺序）。计分时长和页面窗口（默认 1800 s）不同的 cell，在 `cell.json` 里写 `window_s`。
 
-  当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`27eade350`）。
+  该页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`27eade350`）。
 
 ## Cell A v1：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
 
