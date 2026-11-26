@@ -1,6 +1,19 @@
 # Compass 仿真与实测对比
 
-Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测与仿真的 Prometheus 对比图，任务跟踪见 [#592](https://github.com/wuhuikx/LLM-Booster/issues/592)。
+Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测与仿真的 Prometheus 对比图，任务跟踪见 [#791](https://github.com/wuhuikx/LLM-Booster/issues/791)（按 Cell 的总计划与进度，父 issue [#592](https://github.com/wuhuikx/LLM-Booster/issues/592)）。
+
+## 页面一览
+
+| 页面 | 模型 | Cell · 切分方式 | 定律 | 状态 |
+|---|---|---|---|---|
+| [cellA_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v1 · 单机 DPA4 + EP4（4 卡） | PG2 | 已完成 |
+| [cellA_v2_dpa4_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v2 · 单机 DPA4 + MoE TP4，不开 EP（4 卡，即 Cell B 的 D） | `hcT_hkbc` | 最终定律 |
+| [cellA_v2_depa2_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v2 · 单机 DEPA2 = DPA2 + EP2，MoRI（2 卡，即 Cell B 的 P） | `de2PbPMf1_hkb` | 最终定律 |
+| [cellB_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) | DeepSeek-V4.1-Flash | Cell B · 1P1D（P TP2 DPA2 + EP2，D TP4 DPA4）与 2P1D | `v2gA_h0` | 最终定律 |
+| [m31_cellA_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) | MiniMax-M3.1-Flash | Cell A · 单机 TP4（06d AgentX recipe 的 D 配置） | `v2MFS_hkbx` | 中间结果：c=8 / 32 / 64 |
+| [dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html) | DeepSeek-V4.1-Flash | 多配置：1P1D 扫描与 4P4D（8P16D）C1228 | 各档自身记录 | 早期结果 |
+
+MiniMax-M3.1-Flash 的 Cell B（单机 1P1D）还没有目标点，Cell C（两机 1P2D，只用来检验多 P 多 D 的精度）还没有有效的真跑，所以都没有看板。Kimi-K3.1、GLM-5.3-Flash、qwen3.8 flash 也还没有。
 
 ## 多配置看板（按模型 / 部署方式 / 并行配置 / 并发切换）
 
@@ -39,7 +52,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
   当前页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`27eade350`）。
 
-## Cell A：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
+## Cell A v1：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html>**
 
@@ -91,14 +104,46 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 - 实测记录 `real_pw_c*` 与 Prometheus 报告 `prom_real_pw_c*`，校准记录 `cal_theory1`，定律 `store_cal_theory1_pg2`，都在 MI355X 节点 005 的 `~xingjche/perzhang/data/dsv41-mi355/` 下。
 - 对比图由 `build_dash.py` 生成：实测与仿真都取同一 Prometheus 导出器的面板，按第一个正式请求对齐时间。
 
-## 单机 cell A：其他模型（进行中）
+## Cell A v2：单机 DPA4 + MoE TP4（DeepSeek-V4.1-Flash，对应 Cell B 的 D）
 
-按同一套校准流程（step law 的校准方式与 DeepSeek-V4.1-Flash 完全一致），按 recipe 配置，aiperf 窗口不变：
+**交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html>**
 
-| 模型 | 部署 | 状态 |
-|---|---|---|
-| MiniMax-M3.1-Flash | 单机 4 卡 TP4，DSpark 7 个 draft（接受长度强制为实测均值 3.13），fp8 KV，前缀缓存开，最大长度 1048576 | 冒烟测试与内存读数已完成；7 个并发的实测和校准排在 005 的队列中 |
-| Kimi-K3.1 | 单机 8 卡 TP8 + DCP8，bf16 KV，KDA 循环状态，前缀缓存开，最大长度 1048576 | 权重已下载；排在 M3.1 之后 |
+直接打开即可，不需要登录。
+
+- **对象：** DeepSeek-V4.1-Flash，MI355X 单机 4 卡，一个聚合实例（prefill 与 decode 在同一实例）：TP4 + DPA4，MoE 走 TP4、不开 EP；fp8 KV，block 16；MTP 5 个 draft（接受长度强制为 3.51）；max-num-seqs 64。配置取自 ROCm/ATOM recipe `DeepSeek-V4.1-6P16D-C1228-Share-Cache.md`（main `5effb67d4`）的 D 实例。
+- **实测：** pit2 上 c = 1 / 8 / 32 / 64 / 128 / 256 / 512 各一次预热后的 1800 s agentic 真跑，0 次 JIT 编译；c=256、c=512 在隔离整机上重录。c=512 的真跑有一段约 90 s 的设备卡顿，只评卡顿前的窗口。
+- **仿真：** 最终定律 `hcT_hkbc`（第二版）：原校准加三段补充校准合并拟合，加 `tail_peers` 列（`COMPASS_FIT_TAIL_PEERS=1`，jgong5/ATOM `752/dev` f161ed24e）。每格叠 7 条仿真曲线：`hcT_hkbc` 3 个发送顺序 seed，第一版 `cA2U4c_hkbc` 3 个 seed，基线 `cA2D_hkb` 1 个 seed。
+- **误差（仿真 / 实测 − 1，c=1…256 三个 seed 的平均绝对误差）：** TTFT P90 4.5%，TPOT P90 6.1%，每卡吞吐 1.6%。decode 批大小、运行数、KV 占用和缓存复用在每个并发下都在 ±5% 以内；c=8…64 的 TTFT 和排队时间仍偏低 5–15%。逐点数字和运行时间对比见 [#766](https://github.com/wuhuikx/LLM-Booster/issues/766)。
+
+## Cell A v2：单机 DEPA2（DeepSeek-V4.1-Flash，对应 Cell B 的 P）
+
+**交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html>**
+
+直接打开即可，不需要登录。
+
+- **对象：** DeepSeek-V4.1-Flash，MI355X 单机 2 卡，一个聚合实例：TP2 + DPA2 + EP2（MoRI）；fp8 KV；MTP 5 个 draft（接受长度强制为 3.51）。配置取自同一 recipe 的 P 实例。
+- **实测：** c = 1 / 8 / 32 / 64 / 128 / 256 / 512 各一次 1800 s agentic 真跑；c=512 的预热占 3.3 h。
+- **仿真：** 最终定律 `de2PbPMf1_hkb`：prefill 向量在 PM 规则下重新拟合（`COMPASS_FIT_PREFILL_PHASE_MAX=1`），仿真时打开 `COMPASS_PREFILL_PHASE_MAX=1`（jgong5/ATOM `752/dev` 8e9b2fc2a）。上一版 `de2Pb_hkb` 一起画出作对照。发送顺序 seed 0–2，c=256、c=512 为 seed 0–5。
+- **误差（c=1…256 的平均绝对误差）：** TTFT P90 4.6%，TPOT P90 4.5%，每卡吞吐 1.2%。未关：c=512 的 TTFT P90 约 −35%（空闲上限同时释放的一批长请求，仿真里排队偏短）。详见 [#766](https://github.com/wuhuikx/LLM-Booster/issues/766)。
+
+## MiniMax-M3.1-Flash Cell A：单机 PD 混合（中间结果）
+
+**交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html>**
+
+直接打开即可，不需要登录。
+
+- **对象：** MiniMax-M3.1-Flash，MI355X 单机 4 卡，一个聚合实例，用 06d AgentX recipe 的 D 配置（ROCm/ATOM `Jasen/m31-agentx-repro` e1561f3d5，`recipes/m31_agentx_1p2d`）：TP4，C17 decode kernel，AK MoE，lm_head AK + ring，NVFP4 KV 与 index cache，DSpark k=7（接受长度强制为 4.04）。唯一偏离：单机聚合时 D 配置也要做 16k prefill，AK MoE 的 prefill 路径会让 GPU 空转，所以 AK MoE 只用于 ≤2048 行（`ATOM_M3_AK_MOE_MAX=2048`），decode 与 recipe 相同。
+- **实测：** 目前只有 c = 8 / 32 / 64，各一次 1800 s agentic 真跑；c=128 在录，c=1、c=256、c=512 暂缓。
+- **仿真：** 定律 `v2MFS_hkbx`，在 host 标签修复（jgong5/ATOM `752/dev` 29f78cfc8）后重新拟合；修复前的 `v2MFS_hkb` 不再使用。发送顺序 seed 0–2。**定律尚未定稿，全部并发录完后重出本页。**
+- **误差（三个 seed 的平均）：**
+
+  | 指标 | c=8 | c=32 | c=64 |
+  |---|--:|--:|--:|
+  | TTFT P90 | −0.2% | +0.5% | +2.5% |
+  | TPOT P90 | +0.5% | −1.0% | +3.4% |
+  | 每卡吞吐 | +0.4% | +0.2% | 0.0% |
+
+  c=64 的 TTFT P50 为 +39.5%：KV 反复换出使 TTFT 分布出现空档，中位数落在空档里，按区间配对比较在 ±4.4% 以内。详见 [#767](https://github.com/wuhuikx/LLM-Booster/issues/767)。
 
 ## Cell B v2：1P1D 分离（DeepSeek-V4.1-Flash，compass 主分支重做）
 
