@@ -10,7 +10,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 | [cellA_v2_dpa4_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_dpa4_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v2 · 单机 DPA4 + MoE TP4，不开 EP（4 卡，即 Cell B 的 D） | `hcT_hkbc` | 最终定律 |
 | [cellA_v2_depa2_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) | DeepSeek-V4.1-Flash | Cell A v2 · 单机 DEPA2 = DPA2 + EP2，MoRI（2 卡，即 Cell B 的 P） | `de2PbPMf1_hkb` | 最终定律 |
 | [cellB_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) | DeepSeek-V4.1-Flash | Cell B · 1P1D（P TP2 DPA2 + EP2，D TP4 DPA4）与 2P1D | `v2gA_h0` | 最终定律 |
-| [m31_cellA_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) | MiniMax-M3.1-Flash | Cell A · 单机 TP4（06d AgentX recipe 的 D 配置） | `v2MFS_hkbx` | 中间结果：c=8 / 32 / 64 |
+| [m31_cellA_dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) | MiniMax-M3.1-Flash | Cell A · 单机 TP4（06d AgentX recipe 的 D 配置） | `v2MFS_hkbx` | c=8…128 定稿；c=1 / 256 / 512 暂缓 |
 | [dashboard.html](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html) | DeepSeek-V4.1-Flash | 多配置：1P1D 扫描与 4P4D（8P16D）C1228 | 各档自身记录 | 早期结果 |
 
 MiniMax-M3.1-Flash 的 Cell B（单机 1P1D）还没有目标点，Cell C（两机 1P2D，只用来检验多 P 多 D 的精度）还没有有效的真跑，所以都没有看板。Kimi-K3.1、GLM-5.3-Flash、qwen3.8 flash 也还没有。
@@ -126,24 +126,24 @@ MiniMax-M3.1-Flash 的 Cell B（单机 1P1D）还没有目标点，Cell C（两�
 - **仿真：** 最终定律 `de2PbPMf1_hkb`：prefill 向量在 PM 规则下重新拟合（`COMPASS_FIT_PREFILL_PHASE_MAX=1`），仿真时打开 `COMPASS_PREFILL_PHASE_MAX=1`（jgong5/ATOM `752/dev` 8e9b2fc2a）。上一版 `de2Pb_hkb` 一起画出作对照。发送顺序 seed 0–2，c=256、c=512 为 seed 0–5。
 - **误差（c=1…256 的平均绝对误差）：** TTFT P90 4.6%，TPOT P90 4.5%，每卡吞吐 1.2%。未关：c=512 的 TTFT P90 约 −35%（空闲上限同时释放的一批长请求，仿真里排队偏短）。详见 [#766](https://github.com/wuhuikx/LLM-Booster/issues/766)。
 
-## MiniMax-M3.1-Flash Cell A：单机 PD 混合（中间结果）
+## MiniMax-M3.1-Flash Cell A：单机 PD 混合（c=8…128）
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html>**
 
 直接打开即可，不需要登录。
 
 - **对象：** MiniMax-M3.1-Flash，MI355X 单机 4 卡，一个聚合实例，用 06d AgentX recipe 的 D 配置（ROCm/ATOM `Jasen/m31-agentx-repro` e1561f3d5，`recipes/m31_agentx_1p2d`）：TP4，C17 decode kernel，AK MoE，lm_head AK + ring，NVFP4 KV 与 index cache，DSpark k=7（接受长度强制为 4.04）。唯一偏离：单机聚合时 D 配置也要做 16k prefill，AK MoE 的 prefill 路径会让 GPU 空转，所以 AK MoE 只用于 ≤2048 行（`ATOM_M3_AK_MOE_MAX=2048`），decode 与 recipe 相同。
-- **实测：** 目前只有 c = 8 / 32 / 64，各一次 1800 s agentic 真跑；c=128 在录，c=1、c=256、c=512 暂缓。
-- **仿真：** 定律 `v2MFS_hkbx`，在 host 标签修复（jgong5/ATOM `752/dev` 29f78cfc8）后重新拟合；修复前的 `v2MFS_hkb` 不再使用。发送顺序 seed 0–2。**定律尚未定稿，全部并发录完后重出本页。**
+- **实测：** c = 8 / 32 / 64 / 128，各一次 1800 s agentic 真跑；c=1、c=256、c=512 按 owner 要求暂缓。
+- **仿真：** 定律 `v2MFS_hkbx`，在 host 标签修复（jgong5/ATOM `752/dev` 29f78cfc8）后重新拟合；修复前的 `v2MFS_hkb` 不再使用。发送顺序 seed 0–2。**定律对 c=8…128 定稿**；c=1、c=256、c=512 录完后补入本页。
 - **误差（三个 seed 的平均）：**
 
-  | 指标 | c=8 | c=32 | c=64 |
-  |---|--:|--:|--:|
-  | TTFT P90 | −0.2% | +0.5% | +2.5% |
-  | TPOT P90 | +0.5% | −1.0% | +3.4% |
-  | 每卡吞吐 | +0.4% | +0.2% | 0.0% |
+  | 指标 | c=8 | c=32 | c=64 | c=128 |
+  |---|--:|--:|--:|--:|
+  | TTFT P90 | −0.2% | +0.5% | +2.5% | +0.4% |
+  | TPOT P90 | +0.5% | −1.0% | +3.4% | −13.0% |
+  | 每卡吞吐 | +0.4% | +0.2% | 0.0% | −1.0% |
 
-  c=64 的 TTFT P50 为 +39.5%：KV 反复换出使 TTFT 分布出现空档，中位数落在空档里，按区间配对比较在 ±4.4% 以内。详见 [#767](https://github.com/wuhuikx/LLM-Booster/issues/767)。
+  c=64 的 TTFT P50 为 +39.5%：KV 反复换出使 TTFT 分布出现空档，中位数落在空档里，按区间配对比较在 ±4.4% 以内。c=128 的 TPOT P90 偏低 13%，原因还在查。详见 [#767](https://github.com/wuhuikx/LLM-Booster/issues/767)。
 
 ## Cell B v2：1P1D 分离（DeepSeek-V4.1-Flash，compass 主分支重做）
 
