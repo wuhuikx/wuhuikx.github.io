@@ -99,3 +99,15 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 |---|---|---|
 | MiniMax-M3.1-Flash | 单机 4 卡 TP4，DSpark 7 个 draft（接受长度强制为实测均值 3.13），fp8 KV，前缀缓存开，最大长度 1048576 | 冒烟测试与内存读数已完成；7 个并发的实测和校准排在 005 的队列中 |
 | Kimi-K3.1 | 单机 8 卡 TP8 + DCP8，bf16 KV，KDA 循环状态，前缀缓存开，最大长度 1048576 | 权重已下载；排在 M3.1 之后 |
+
+## Cell B v2：1P1D 分离（DeepSeek-V4.1-Flash，compass 主分支重做）
+
+**交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html>**
+
+直接打开即可，不需要登录。
+
+- **对象：** DeepSeek-V4.1-Flash，MI355X 单机 1P1D。P 为 TP2（DPA2 + EP2，MoRI），D 为 TP4（DPA4，不开 EP）；fp8 KV，MTP 5 个 draft（接受长度强制为 3.51），开 Mooncake Store。2P1D 为两个同样的 P 加一个 D。
+- **实测：** compass 主分支（jgong5/ATOM `752/dev`，digest `7d7bd41e`）上录制。c307、c256 用于拟合，r240（c=240）、w1（c=64、c=16）、2P1D c=128 是样本外点；aiperf 窗口 900 s（w1 为 600 s）。
+- **仿真：** 最终定律 v2g A+h0（`752/dev` f2d202a4e，`COMPASS_FIT_MOE_FOLDS=covered`，按 #739 只用校准数据选律）。每个点有标准发送顺序和种子 1 两次仿真；旧律 v2f A+h0 也在页面中作对照。
+- **误差（仿真 / 实测 − 1，两次平均；6 个点的平均绝对误差）：** TTFT P50 1.6%，TTFT P90 5.3%，TPOT P90 1.7%，每卡吞吐 0.7%。逐点数字和运行时间对比见 [#734](https://github.com/wuhuikx/LLM-Booster/issues/734)。
+- **已知空面板：** 实测的 GPU per-step 面板为空（录制时未开设备计时）；仿真的 Overall TTFT 为空；Store 只体现在 Prefill cache hit 里的 Store hit 曲线中。
