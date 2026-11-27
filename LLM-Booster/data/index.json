@@ -1,5 +1,5 @@
 {
-  "lastUpdate": 1795783357223,
+  "lastUpdate": 1795817263460,
   "source": "",
   "runs": [
     {
@@ -40051,6 +40051,36 @@
       "n_points": 8,
       "gsm8k": null,
       "file": "vllm-atom/atom_vllm_20261031_qwen3-5-397b-a17b_isl8192_osl1024_e281d58.json"
+    },
+    {
+      "run_id": "atom_vllm_20261127_qwen3-5-397b-a17b_isl1024_osl1024_380aeb8",
+      "date": "2026-11-27",
+      "timestamp": 1795796723563,
+      "model": "Qwen3.5-397B-A17B",
+      "backend": "vLLM-ATOM",
+      "config_label": "atom-vllm_qwen3-5-397b-a17b_tp4",
+      "source": "OOB",
+      "client_bench": "vllm bench",
+      "precision": null,
+      "hardware": "mi355x",
+      "n_points": 5,
+      "gsm8k": null,
+      "file": "vllm-atom/atom_vllm_20261127_qwen3-5-397b-a17b_isl1024_osl1024_380aeb8.json"
+    },
+    {
+      "run_id": "atom_vllm_20261127_qwen3-5-397b-a17b_isl8192_osl1024_380aeb8",
+      "date": "2026-11-27",
+      "timestamp": 1795796723563,
+      "model": "Qwen3.5-397B-A17B",
+      "backend": "vLLM-ATOM",
+      "config_label": "atom-vllm_qwen3-5-397b-a17b_tp4",
+      "source": "OOB",
+      "client_bench": "vllm bench",
+      "precision": null,
+      "hardware": "mi355x",
+      "n_points": 5,
+      "gsm8k": null,
+      "file": "vllm-atom/atom_vllm_20261127_qwen3-5-397b-a17b_isl8192_osl1024_380aeb8.json"
     }
   ]
 }
