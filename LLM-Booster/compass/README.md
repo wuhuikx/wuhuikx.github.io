@@ -25,7 +25,8 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
   | DeepSeek-V4.1-Flash | [Cell A v2 · P 配置：TP2 DPA2 EP2 MoRI](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=aggregated&par=Cell+A+v2+%C2%B7+P+%E9%85%8D%E7%BD%AE%EF%BC%9ATP2+DPA2+EP2+MoRI+%C2%B7+law+de2PbPMf1_hkb&c=128) | `de2PbPMf1_hkb`，3 个 seed（c=1 为 1 个，c=256 / 512 为 6 个） | 1 / 8 / 32 / 64 / 128 / 256 / 512 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellA_v2_depa2_dashboard.html) |
   | DeepSeek-V4.1-Flash | [Cell B · 1P1D（P TP2 DPA2 EP2，D TP4 DPA4）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=pd&par=Cell+B+%C2%B7+1P1D%EF%BC%88P+TP2+DPA2+EP2%EF%BC%8CD+TP4+DPA4%EF%BC%89%C2%B7+law+v2gA_h0&c=240) | `v2gA_h0`，标准顺序 + seed 1 | 16 / 64 / 240 / 256 / 307 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) |
   | DeepSeek-V4.1-Flash | [Cell B · 2P1D（2 × P TP2 DPA2 EP2，D TP4 DPA4）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=DeepSeek-V4.1-Flash&dep=pd&par=Cell+B+%C2%B7+2P1D%EF%BC%882+%C3%97+P+TP2+DPA2+EP2%EF%BC%8CD+TP4+DPA4%EF%BC%89%C2%B7+law+v2gA_h0&c=128) | `v2gA_h0`，标准顺序 + seed 1 | 128 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/cellB_dashboard.html) |
-  | MiniMax-M3.1-Flash | [Cell A · TP4 NVFP4 AK-MoE（06d AgentX 的 D 配置）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=MiniMax-M3.1-Flash&dep=aggregated&par=Cell+A+%C2%B7+TP4+NVFP4+AK-MoE%EF%BC%8806d+AgentX+%E7%9A%84+D+%E9%85%8D%E7%BD%AE%EF%BC%89%C2%B7+law+v2MFS_hkbx&c=128) | `v2MFS_hkbx`，3 个 seed | 8 / 32 / 64 / 128 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) |
+  | MiniMax-M3.1-Flash | [Cell A · TP4 NVFP4 AK-MoE（06d AgentX 的 D 配置）](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=MiniMax-M3.1-Flash&dep=aggregated&par=Cell+A+%C2%B7+TP4+NVFP4+AK-MoE%EF%BC%8806d+AgentX+%E7%9A%84+D+%E9%85%8D%E7%BD%AE%EF%BC%89%C2%B7+law+v2MFS_hkbx&c=128) | `v2MFS_hkbx`，定稿；c=1、8 为 3 个 seed，c=32–128 为 6 个，c=256 为 4 个慢 basin seed；c=512 取消 | 1 / 8 / 32 / 64 / 128 / 256 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) |
+  | MiniMax-M3.1-Flash | [Cell A · TP4 NVFP4 AK-MoE（06d D）· 其余有效实测：c128 对 real2.jit1，c256 对 real2](https://wuhuikx.github.io/LLM-Booster/compass/dashboard.html#model=MiniMax-M3.1-Flash&dep=aggregated&par=Cell+A+%C2%B7+TP4+NVFP4+AK-MoE%EF%BC%8806d+D%EF%BC%89%C2%B7+%E5%85%B6%E4%BD%99%E6%9C%89%E6%95%88%E5%AE%9E%E6%B5%8B%EF%BC%9Ac128+%E5%AF%B9+real2.jit1%EF%BC%8Cc256+%E5%AF%B9+real2+%C2%B7+law+v2MFS_hkbx&c=256) | `v2MFS_hkbx`，c=128 为 6 个 seed，c=256 为 4 个慢 basin seed | 128 / 256 | [详细页](https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html) |
 
 - **没有收录：**
   - Cell C（4P4D C1228）：旧结果的仿真用的是这次实测自己拟合的定律（样本内）。Cell C 只用来检验多 P 多 D 的精度，真实数据不参与拟合，所以没有放进来；旧页面保留在下一节。
@@ -157,24 +158,29 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 - **仿真：** 最终定律 `de2PbPMf1_hkb`：prefill 向量在 PM 规则下重新拟合（`COMPASS_FIT_PREFILL_PHASE_MAX=1`），仿真时打开 `COMPASS_PREFILL_PHASE_MAX=1`（jgong5/ATOM `752/dev` 8e9b2fc2a）。上一版 `de2Pb_hkb` 一起画出作对照。发送顺序 seed 0–2，c=256、c=512 为 seed 0–5。
 - **误差（c=1…256 的平均绝对误差）：** TTFT P90 4.6%，TPOT P90 4.5%，每卡吞吐 1.2%。未关：c=512 的 TTFT P90 约 −35%（空闲上限同时释放的一批长请求，仿真里排队偏短）。详见 [#766](https://github.com/wuhuikx/LLM-Booster/issues/766)。
 
-## MiniMax-M3.1-Flash Cell A：单机 PD 混合（c=8…128）
+## MiniMax-M3.1-Flash Cell A：单机 PD 混合（定稿，c=1…256）
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/m31_cellA_dashboard.html>**
 
 直接打开即可，不需要登录。
 
 - **对象：** MiniMax-M3.1-Flash，MI355X 单机 4 卡，一个聚合实例，用 06d AgentX recipe 的 D 配置（ROCm/ATOM `Jasen/m31-agentx-repro` e1561f3d5，`recipes/m31_agentx_1p2d`）：TP4，C17 decode kernel，AK MoE，lm_head AK + ring，NVFP4 KV 与 index cache，DSpark k=7（接受长度强制为 4.04）。唯一偏离：单机聚合时 D 配置也要做 16k prefill，AK MoE 的 prefill 路径会让 GPU 空转，所以 AK MoE 只用于 ≤2048 行（`ATOM_M3_AK_MOE_MAX=2048`），decode 与 recipe 相同。
-- **实测：** c = 8 / 32 / 64 / 128，各一次 1800 s agentic 真跑；c=1、c=256、c=512 按 owner 要求暂缓。
-- **仿真：** 定律 `v2MFS_hkbx`，在 host 标签修复（jgong5/ATOM `752/dev` 29f78cfc8）后重新拟合；修复前的 `v2MFS_hkb` 不再使用。发送顺序 seed 0–2。**定律对 c=8…128 定稿**；c=1、c=256、c=512 录完后补入本页。
-- **误差（三个 seed 的平均）：**
+- **实测（只用有效记录）：** c = 1 / 8 / 32 / 64 / 128 / 256，各 1800 s agentic 真跑；按 1.0 s 停顿规则只用有效记录。c=128、c=256 各有两条有效真跑，误差取两者平均。c=512 按 owner 要求取消。
+- **仿真：** 定律 `v2MFS_hkbx` 定稿，在 host 标签修复（jgong5/ATOM `752/dev` 29f78cfc8）后拟合。发送顺序 seed：c=1、8 为 3 个，c=32 / 64 / 128 为 6 个。
+- **c=256 按 t0 basin 分层评分（owner 11-27 决定）：** profiling 开始时，一个 765k token 会话的前缀是否还在 KV cache 里，决定整段运行走「快」还是「慢」。两条真跑都是慢 basin；18 个仿真 seed 里有 4 个是慢 basin，评分只用这 4 个。其余 14 个快 basin 的 seed 只放在详细页的参考配置里，不计分。
+- **误差（仿真 / 实测 − 1，seed 平均，对有效真跑取平均；命中率为百分点差）：**
 
-  | 指标 | c=8 | c=32 | c=64 | c=128 |
-  |---|--:|--:|--:|--:|
-  | TTFT P90 | −0.2% | +0.5% | +2.5% | +0.4% |
-  | TPOT P90 | +0.5% | −1.0% | +3.4% | −13.0% |
-  | 每卡吞吐 | +0.4% | +0.2% | 0.0% | −1.0% |
+  | 指标 | c=1 | c=8 | c=32 | c=64 | c=128 | c=256 |
+  |---|--:|--:|--:|--:|--:|--:|
+  | TTFT P90 | −1.8% | −0.2% | 0.0% | +2.3% | +0.4% | −1.1% |
+  | TPOT P90 | −0.2% | +0.5% | −1.5% | +4.7% | −4.9% | −1.3% |
+  | 每卡吞吐 | +0.9% | +0.4% | +0.2% | −0.1% | −2.1% | 0.0% |
+  | GPU 前缀命中率（pt） | +0.02 | +0.01 | +0.04 | −0.30 | −1.01 | −0.23 |
+  | TTFT P50 | −4.8% | +1.6% | +0.5% | **+27.2%** | +4.4% | **−24.4%** |
 
-  c=64 的 TTFT P50 为 +39.5%：KV 反复换出使 TTFT 分布出现空档，中位数落在空档里，按区间配对比较在 ±4.4% 以内。c=128 的 TPOT P90 偏低 13%，原因还在查。详见 [#767](https://github.com/wuhuikx/LLM-Booster/issues/767)。
+  P90、吞吐和命中率全部在 5% 以内。TTFT P50 在 c=64、c=256 超过 5%，都是中位数落在 TTFT 分布的陡坡上，不是定律的误差。c=256 慢 basin 的面板 ITL P50 按分钟取均值，开头约 230 s decode 几乎停顿、样本很少，数值不稳，请以逐请求表为准。
+
+- **运行时间（真跑服务时长 / 每个 seed 的仿真时长，分钟）：** c=1 32 / 5.4，c=8 33 / 8.0，c=32 37 / 14，c=64 88 / 6.5，c=128 137 / 8.5，c=256 236 / 约 10。仿真只用 CPU。详见 [#767](https://github.com/wuhuikx/LLM-Booster/issues/767)。
 
 ## Cell B v2：1P1D 分离（DeepSeek-V4.1-Flash，compass 主分支重做）
 
