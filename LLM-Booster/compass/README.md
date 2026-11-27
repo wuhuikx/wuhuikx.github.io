@@ -77,6 +77,28 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 
   该页面由 `python3 scripts/compass/compare_dashboard.py /share_nfs/xingjche/compass_dashboard/1p1d_sweep_sim/manifest.json --scan /share_nfs/xingjche/x8p16d/dash_pub --title 'Compass · DeepSeek-V4.1-Flash 真实 vs 仿真' --out dashboard.html` 生成（jgong5/ATOM#3939 的分支，`27eade350`）。
 
+## 使用仿真前的一次性工作（校准 + 拟合）
+
+每个配置要先录校准、拟合出 law，之后每个新的并发点只需仿真。下表单位为分钟，GPU 部分的口径与各表的"真跑耗时"相同。
+
+| 配置（用卡） | 录前准备（GPU） | 校准录制（GPU） | 拟合（CPU） | **合计** | 选 law（CPU，另计） | 全部并发真跑合计 | 全部并发仿真合计（每点 1 个 seed） |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| DSv4.1 DPA4 `hcT6PF_hkbc`（4 卡） | 48.8 | 45.1（6 段） | 16.1 | **110.0** | 69 | 315.7（7 点） | 165.0 |
+| DSv4.1 DEPA2 `de2PbPMf1_hkb`（2 卡） | 35.0 | 52.4（2 段） | 5.7 | **93.1** | 64 | 536.5（7 点） | 66.9 |
+| M3.1 `v2MFS_hkbx`（4 卡） | 57.5 | 28.6（1 段） | 0.9 | **87.0** | 10 | 562.4（6 点） | 52.6 |
+
+- **录前准备**：内存读数、c8 冒烟、设备测量。DSv4.1 两个配置共用 11-18 的同一次设备测量（18.3 分钟），两边都计入；去掉它，两者合计分别为 91.7 和 74.8 分钟。
+- **校准录制**：DPA4 为 cal 17.5、add1 6.9、add2 3.9、add3 5.2、addPM 5.6、addHit 6.0；DEPA2 为 cal 36.8、add1 15.6；M3.1 为 cal 28.6。
+- **拟合**：最终 law 的 step law 与 host law 拟合，含重拟合（DEPA2 的 PM 重拟合、M3.1 的 hkbx 重拟合）。DPA4 的 step law 拟合最慢，为 938 s。
+- **选 law**：按 [#739](https://github.com/wuhuikx/LLM-Booster/issues/739) 比较候选 law 的拟合与留一段打分，记为并行作业的实际经过时间，只算最后一轮。DPA4 算上所有轮次为 193 分钟。
+- **未计入**：
+  - 作废重录的校准：DPA4 47、M3.1 79 GPU 分钟。
+  - 排查用的租约。
+  - 校准设计与空跑：2–6 分钟 CPU。
+  - 服务启动时间：加上后三者合计分别为 156、110、96 分钟。
+- 拟合和选 law 都在共享的 g08 上做，负载没有记录。
+- 明细与来源：`~/agent_scratch/752/fix1126/prework/PREWORK.md`。
+
 ## Cell A v1：单机 DPA4-EP4（DeepSeek-V4.1-Flash）
 
 **交互式对比图：<https://wuhuikx.github.io/LLM-Booster/compass/cellA_dashboard.html>**
@@ -138,6 +160,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 - **对象：** DeepSeek-V4.1-Flash，MI355X 单机 4 卡，一个聚合实例（prefill 与 decode 在同一实例）：TP4 + DPA4，MoE 走 TP4、不开 EP；fp8 KV，block 16；MTP 5 个 draft（接受长度强制为 3.51）；max-num-seqs 64。配置取自 ROCm/ATOM recipe `DeepSeek-V4.1-6P16D-C1228-Share-Cache.md`（main `5effb67d4`）的 D 实例。
 - **实测（只用有效记录）：** pit2 上每个并发 1800 s agentic 真跑。按 owner 的规则，被卡顿影响的实测判为无效，不参与比较；一个并发有多份有效实测时，误差取对它们的平均。c=1 / 128 用 real1；c=8 的 real1 无效，用 real2；c=64 的 real1 无效，用 real2 和 real3；c=32、c=256 用 real1 和 real2；c=512 的 real1 有 30 次 KFD 换出卡顿，用 real2 和 real3。页面里主配置每个并发放一份实测（c=8 / 64 / 512 为 real2），其余有效实测单列一组「c32、c256 对 real2，c64、c512 对 real3」。
 - **仿真：** 最终定律 `hcT6PF_hkbc`（owner 11-26 约 15:00 UTC 决定，按 [#739](https://github.com/wuhuikx/LLM-Booster/issues/739) 只用校准数据做留一段交叉验证选出）：在 `hcT_hkbc` 的基础上加 PM 规则（拟合 `COMPASS_FIT_PREFILL_PHASE_MAX=1`，仿真 `COMPASS_PREFILL_PHASE_MAX=1`），用原校准、三段补充校准和 addPM、addHit 两段补充校准合并拟合。发送顺序 seed 0–5（c=1、c=8 为 0–2）；本页另画上一版 `hcT_hkbc`（seed 0–2）作对照（统一看板里只放 `hcT6PF_hkbc`）。
+- **使用前一次性工作：** 110 分钟（GPU 93.9 + 拟合 16.1），见「使用仿真前的一次性工作（校准 + 拟合）」一节。
 - **误差（仿真 / 实测 − 1，seed 平均；对该并发全部有效实测的平均）：**
 
   | 指标 | c=1 | c=8 | c=32 | c=64 | c=128 | c=256 | c=512 |
@@ -161,6 +184,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 - **对象：** DeepSeek-V4.1-Flash，MI355X 单机 2 卡，一个聚合实例：TP2 + DPA2 + EP2（MoRI）；fp8 KV；MTP 5 个 draft（接受长度强制为 3.51）。配置取自同一 recipe 的 P 实例。
 - **实测（只用有效记录）：** c = 1 / 8 / 32 / 64 / 128 / 256 / 512，各 1800 s agentic 真跑；按 owner 的 1.0 s 停顿规则只用有效记录（KFD 换出不算作废），一个并发有多份有效实测时误差取平均。c=32、c=128 有 real1、real2；c=64 的 real3 按停顿规则作废，用 real1、real2；c=512 有 real1、real2、real3。页面里主配置都对 real1，其余有效实测分成「c32、c64、c128、c512 对 real2」和「c512 对 real3」两组。
 - **仿真：** 最终定律 `de2PbPMf1_hkb`：prefill 向量在 PM 规则下重新拟合（`COMPASS_FIT_PREFILL_PHASE_MAX=1`），仿真时打开 `COMPASS_PREFILL_PHASE_MAX=1`（jgong5/ATOM `752/dev` 8e9b2fc2a）。发送顺序 seed：c≥8 为 6 个，c=1 为 2 个。
+- **使用前一次性工作：** 93.1 分钟（GPU 87.4 + 拟合 5.7），见「使用仿真前的一次性工作（校准 + 拟合）」一节。
 - **误差（仿真 / 实测 − 1，seed 平均，对有效实测取平均；命中率为百分点差）：**
 
   | 指标 | c=1 | c=8 | c=32 | c=64 | c=128 | c=256 | c=512 |
@@ -188,6 +212,7 @@ Compass 是 ATOM 推理引擎的虚拟时钟仿真器。这里放各 Cell 实测
 - **对象：** MiniMax-M3.1-Flash，MI355X 单机 4 卡，一个聚合实例，用 06d AgentX recipe 的 D 配置（ROCm/ATOM `Jasen/m31-agentx-repro` e1561f3d5，`recipes/m31_agentx_1p2d`）：TP4，C17 decode kernel，AK MoE，lm_head AK + ring，NVFP4 KV 与 index cache，DSpark k=7（接受长度强制为 4.04）。唯一偏离：单机聚合时 D 配置也要做 16k prefill，AK MoE 的 prefill 路径会让 GPU 空转，所以 AK MoE 只用于 ≤2048 行（`ATOM_M3_AK_MOE_MAX=2048`），decode 与 recipe 相同。
 - **实测（只用有效记录）：** c = 1 / 8 / 32 / 64 / 128 / 256，各 1800 s agentic 真跑；按 1.0 s 停顿规则只用有效记录。c=128、c=256 各有两条有效真跑，误差取两者平均。c=512 按 owner 要求取消。
 - **仿真：** 定律 `v2MFS_hkbx` 定稿，在 host 标签修复（jgong5/ATOM `752/dev` 29f78cfc8）后拟合。发送顺序 seed：c=1、8 为 3 个，c=32 / 64 / 128 为 6 个。
+- **使用前一次性工作：** 87.0 分钟（GPU 86.1 + 拟合 0.9），见「使用仿真前的一次性工作（校准 + 拟合）」一节。
 - **c=256 按 t0 basin 分层评分（owner 11-27 决定）：** profiling 开始时，一个 765k token 会话的前缀是否还在 KV cache 里，决定整段运行走「快」还是「慢」。两条真跑都是慢 basin；18 个仿真 seed 里有 4 个是慢 basin，评分只用这 4 个。其余 14 个快 basin 的 seed 只放在详细页的参考配置里，不计分。
 - **误差（仿真 / 实测 − 1，seed 平均，对有效真跑取平均；命中率为百分点差）：**
 
